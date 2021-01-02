@@ -3,7 +3,7 @@ defmodule Bank.Repo.Migrations.CreateAuthUser do
 
   def change do
     create table(:api_users) do
-      add :cpf, :integer, null: false
+      add :cpf, :string, null: false
       add :password_hash, :string, null: false
 
       timestamps()

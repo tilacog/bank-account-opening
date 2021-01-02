@@ -41,7 +41,8 @@ defmodule Bank.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:pbkdf2_elixir, "~> 1.2"}
+      {:pbkdf2_elixir, "~> 1.2"},
+      {:brcpfcnpj, "~> 0.2"}
     ]
   end
 
