@@ -1,12 +1,8 @@
 defmodule BankWeb.AuthView do
   use BankWeb, :view
 
-  def render("show.json", %{cpf: cpf, token: token}) do
-    %{
-      status: "success",
-      cpf: cpf,
-      token: token
-    }
+  def render("show.json", _args) do
+    %{status: "success"}
   end
 
   def render("error.json", %{changeset: changeset}) do
