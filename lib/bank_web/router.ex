@@ -7,5 +7,7 @@ defmodule BankWeb.Router do
 
   scope "/api", BankWeb do
     pipe_through :api
+
+    resources "/auth", AuthController, only: [:create]
   end
 end
