@@ -18,27 +18,12 @@ defmodule BankWeb.AuthController do
     end
   end
 
-  defp authenticate(conn, _opts) do
-    cond do
-      %{"cpf" => cpf, "password" => given_password} = conn.body_params ->
-        user = Auth.get_user_by_cpf(cpf)
-
-        if user do
-          if Auth.verify_password(user, given_password) do
-            # user found, password ok
-            conn
-          else
-            # user found, password not ok
-            unauthorized(conn)
-          end
-        else
-          # user was not found, simulate password hashing
-          Pbkdf2.no_user_verify()
-          unauthorized(conn)
-        end
-
-      true ->
-        # user credentials were not provided
+  def authenticate(conn, _opts) do
+    with %{"cpf" => cpf, "password" => given_password} <- conn.body_params,
+         {:ok, api_user} <- Auth.authenticate_by_cpf_and_password(cpf, given_password) do
+      assign(conn, :api_user, api_user)
+    else
+      {:error, _reason} ->
         unauthorized(conn)
     end
   end

@@ -15,7 +15,19 @@ defmodule Bank.Auth do
     Repo.get_by(ApiUser, cpf: cpf)
   end
 
-  def verify_password(user, given_password) do
-    Pbkdf2.verify_pass(given_password, user.password_hash)
+  def authenticate_by_cpf_and_password(given_cpf, given_password) do
+    api_user = get_user_by_cpf(given_cpf)
+
+    cond do
+      api_user && Pbkdf2.verify_pass(given_password, api_user.password_hash) ->
+        {:ok, api_user}
+
+      api_user ->
+        {:error, :unauthorized}
+
+      true ->
+        Pbkdf2.no_user_verify()
+        {:error, :not_found}
+    end
   end
 end
