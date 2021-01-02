@@ -14,4 +14,8 @@ defmodule Bank.Auth do
   def get_user_by_cpf(cpf) do
     Repo.get_by(ApiUser, cpf: cpf)
   end
+
+  def verify_password(user, given_password) do
+    Pbkdf2.verify_pass(given_password, user.password_hash)
+  end
 end
