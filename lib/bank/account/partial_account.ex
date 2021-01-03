@@ -10,7 +10,7 @@ defmodule Bank.Account.PartialAccount do
   schema "partial_accounts" do
     field :name, :string
     field :email, :string
-    field :birth_date, :utc_datetime
+    field :birth_date, :date
     field :gender, :string
     field :city, :string
     field :state, :string
@@ -29,23 +29,9 @@ defmodule Bank.Account.PartialAccount do
     |> validate_inclusion(:gender, @genders)
     |> validate_length(:referral_code, is: 8)
     |> validate_email(:email)
+    |> validate_referral_code()
     |> unique_constraint(:referral_code)
     |> unique_constraint(:email)
-    |> parse_birth_date()
-  end
-
-  def parse_birth_date(changeset) do
-    case changeset do
-      %Ecto.Changeset{changes: %{birth_date: given_birth_date}} ->
-        with {:ok, birth_date} <- Date.from_iso8601(given_birth_date) do
-          put_change(changeset, :birth_date, birth_date)
-        else
-          _ -> add_error(changeset, :birth_date, "invalid birth date")
-        end
-
-      _ ->
-        changeset
-    end
   end
 
   def is_finished?(changeset) do
@@ -57,5 +43,26 @@ defmodule Bank.Account.PartialAccount do
     |> Enum.filter(fn {_key, value} -> is_nil(value) end)
     # are there any empty fields?
     |> Enum.empty?()
+  end
+
+  defp validate_referral_code(changeset) do
+    case changeset do
+      %Ecto.Changeset{changes: %{referral_code: refcode}} ->
+        if is_numeric(refcode) do
+          changeset
+        else
+          add_error(changeset, :referral_code, "must be numeric")
+        end
+
+      _ ->
+        changeset
+    end
+  end
+
+  defp is_numeric(str) do
+    case Integer.parse(str) do
+      {_num, ""} -> true
+      _ -> false
+    end
   end
 end
