@@ -12,7 +12,8 @@ defmodule Bank.Auth do
   end
 
   def get_user_by_cpf(cpf) do
-    Repo.get_by(ApiUser, cpf: cpf)
+    formatted_cpf = Brcpfcnpj.cpf_format(%Cpf{number: cpf})
+    Repo.get_by(ApiUser, cpf: formatted_cpf)
   end
 
   def authenticate_by_cpf_and_password(given_cpf, given_password) do
