@@ -42,7 +42,8 @@ defmodule Bank.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:pbkdf2_elixir, "~> 1.2"},
-      {:brcpfcnpj, "~> 0.2"}
+      {:brcpfcnpj, "~> 0.2"},
+      {:ecto_commons, "~> 0.3.0"}
     ]
   end
 
