@@ -15,5 +15,14 @@ defmodule BankWeb.AccountControllerTest do
     assert %{"error" => "Unauthorized"} = body
   end
 
+  test "authenticated requests are accepted", %{conn: conn} do
+    api_user = api_user_fixture()
+
+    conn
+    |> assign(:api_user, api_user)
+    |> post(Routes.account_path(conn, :create), @valid_partial_input)
+    |> json_response(200)
+  end
+
   # test "template", %{conn: conn} do end
 end

@@ -23,7 +23,7 @@ defmodule BankWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import BankWeb.ConnCase
-
+      import Bank.TestHelpers
       alias BankWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
