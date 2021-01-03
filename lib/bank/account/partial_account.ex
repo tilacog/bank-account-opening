@@ -15,7 +15,7 @@ defmodule Bank.Account.PartialAccount do
     field :city, :string
     field :state, :string
     field :country, :string
-    # TODO: set assoc
+    # TODO: set assoc on referral_code
     field :referral_code, :string
 
     belongs_to :api_user, ApiUser
@@ -31,5 +31,31 @@ defmodule Bank.Account.PartialAccount do
     |> validate_email(:email)
     |> unique_constraint(:referral_code)
     |> unique_constraint(:email)
+    |> parse_birth_date()
+  end
+
+  def parse_birth_date(changeset) do
+    case changeset do
+      %Ecto.Changeset{changes: %{birth_date: given_birth_date}} ->
+        with {:ok, birth_date} <- Date.from_iso8601(given_birth_date) do
+          put_change(changeset, :birth_date, birth_date)
+        else
+          _ -> add_error(changeset, :birth_date, "invalid birth date")
+        end
+
+      _ ->
+        changeset
+    end
+  end
+
+  def is_finished?(changeset) do
+    changeset
+    |> Ecto.Changeset.apply_changes()
+    |> Map.from_struct()
+    |> Map.drop([:__meta__])
+    # keep only empty fields:
+    |> Enum.filter(fn {_key, value} -> is_nil(value) end)
+    # are there any empty fields?
+    |> Enum.empty?()
   end
 end

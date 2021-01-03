@@ -11,6 +11,7 @@ defmodule Bank.Account do
     |> PartialAccount.changeset(attrs)
     |> Ecto.Changeset.put_assoc(:api_user, api_user)
     |> Repo.insert()
+
     # TODO: add operation to check if it is complete
   end
 end
