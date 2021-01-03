@@ -23,8 +23,7 @@ defmodule BankWeb.AuthController do
          {:ok, api_user} <- Auth.authenticate_by_cpf_and_password(cpf, given_password) do
       assign(conn, :api_user, api_user)
     else
-      {:error, _reason} ->
-        unauthorized(conn)
+      _ -> unauthorized(conn)
     end
   end
 
