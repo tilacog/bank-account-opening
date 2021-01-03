@@ -16,6 +16,7 @@ defmodule Bank.Auth.ApiUser do
     |> validate_required([:cpf, :password])
     |> validate_length(:password, min: 6, max: 100)
     |> validate_cpf()
+    |> format_cpf()
   end
 
   def registration_changeset(user, attrs) do
@@ -25,17 +26,15 @@ defmodule Bank.Auth.ApiUser do
     |> unique_constraint(:cpf)
   end
 
-  defp validate_cpf(changeset) do
-    case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{cpf: given_cpf}} ->
-        if !Brcpfcnpj.cpf_valid?(%Cpf{number: given_cpf}) do
-          add_error(changeset, :cpf, "invalid cpf")
-        else
-          changeset
-        end
+  defp format_cpf(%Ecto.Changeset{valid?: true, changes: %{cpf: given_cpf}} = changeset) do
+    put_change(changeset, :cpf, Brcpfcnpj.cpf_format(%Cpf{number: given_cpf}))
+  end
 
-      _ ->
-        changeset
+  defp validate_cpf(%Ecto.Changeset{valid?: true, changes: %{cpf: given_cpf}} = changeset) do
+    if Brcpfcnpj.cpf_valid?(%Cpf{number: given_cpf}) do
+      changeset
+    else
+      add_error(changeset, :cpf, "invalid cp%Cpf{number: given_cpf}f")
     end
   end
 

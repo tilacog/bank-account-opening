@@ -2,7 +2,7 @@ defmodule Bank.Auth do
   @moduledoc """
   The Auth context.
   """
-  alias(Bank.Repo)
+  alias Bank.Repo
   alias Bank.Auth.ApiUser
 
   def register_user(attrs \\ %{}) do
