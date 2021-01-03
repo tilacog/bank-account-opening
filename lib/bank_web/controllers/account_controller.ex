@@ -3,8 +3,8 @@ defmodule BankWeb.AccountController do
 
   action_fallback BankWeb.FallbackController
 
-  def create(con, _params) do
-    con
+  def create(conn, _params) do
+    conn
     |> put_status(:ok)
     |> render("show.json", %{})
   end
