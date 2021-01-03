@@ -23,7 +23,7 @@ if [ ! -f "$PGDATA/postmaster.pid" ]; then
 fi
 
 echo "=> Creating the postgres user if necessary.."
-createuser postgres --createdb --echo --host=localhost
+createuser postgres --createdb --echo --host=localhost || true
 echo
 
 echo "=> Setting up the database..."
