@@ -34,7 +34,7 @@ defmodule Bank.Auth.ApiUser do
     if Brcpfcnpj.cpf_valid?(%Cpf{number: given_cpf}) do
       changeset
     else
-      add_error(changeset, :cpf, "invalid cp%Cpf{number: given_cpf}f")
+      add_error(changeset, :cpf, "invalid cpf")
     end
   end
 
