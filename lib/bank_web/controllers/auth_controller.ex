@@ -4,17 +4,13 @@ defmodule BankWeb.AuthController do
   alias Bank.Auth
   alias Bank.Auth.ApiUser
 
-  def create(conn, params) do
-    case Auth.register_user(params) do
-      {:ok, %ApiUser{}} ->
-        conn
-        |> put_status(:created)
-        |> render("show.json", %{})
+  action_fallback BankWeb.FallbackController
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render("error.json", %{changeset: changeset})
+  def create(conn, params) do
+    with {:ok, %ApiUser{}} <- Auth.register_user(params) do
+      conn
+      |> put_status(:created)
+      |> render("show.json", %{})
     end
   end
 
