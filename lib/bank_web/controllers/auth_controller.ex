@@ -14,18 +14,16 @@ defmodule BankWeb.AuthController do
     end
   end
 
-  def authenticate(conn, _opts) do
+  def authenticate_api_user(conn, _opts) do
     with %{"cpf" => cpf, "password" => given_password} <- conn.body_params,
          {:ok, api_user} <- Auth.authenticate_by_cpf_and_password(cpf, given_password) do
       assign(conn, :api_user, api_user)
     else
-      _ -> unauthorized(conn)
+      _ ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(:unauthorized, Jason.encode!(%{error: "Unauthorized"}))
+        |> halt()
     end
-  end
-
-  defp unauthorized(conn) do
-    conn
-    |> put_status(:unauthorized)
-    |> halt()
   end
 end
