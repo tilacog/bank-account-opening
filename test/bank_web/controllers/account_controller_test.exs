@@ -76,36 +76,24 @@ defmodule BankWeb.AccountControllerTest do
   test "only one partial_account per api_user", %{conn: conn} do
     api_user = api_user_fixture()
     conn = assign(conn, :api_user, api_user)
-    payload = %{}
-
     assert Repo.aggregate(PartialAccount, :count) == 0
-
-    _first_response =
-      conn
-      |> post(Routes.account_path(conn, :create), payload)
-      |> json_response(201)
-
+    dispatch_request(conn, api_user, %{}, :create, 201)
     assert Repo.aggregate(PartialAccount, :count) == 1
-
-    # so far so good
-
-    _second_response =
-      conn
-      |> post(Routes.account_path(conn, :create), payload)
-      |> json_response(422)
-
+    dispatch_request(conn, api_user, %{}, :create, 422)
     assert Repo.aggregate(PartialAccount, :count) == 1
   end
 
+  # Helper function to quickly setup and assert a test case
   defp test_valid_request(conn, payload) do
     cpf = Brcpfcnpj.cpf_generate()
     api_user = api_user_fixture(cpf: cpf)
-    response_body = build_response_body(conn, api_user, payload, :create, 201)
+    response_body = dispatch_request(conn, api_user, payload, :create, 201)
     expected = build_expected_result(payload)
     assert expected == response_body
   end
 
-  defp build_response_body(conn, api_user, payload, method, status_code) do
+  # Helper function to quickly dispatch a request to the server
+  defp dispatch_request(conn, api_user, payload, method, status_code) do
     conn
     |> assign(:api_user, api_user)
     |> post(Routes.account_path(conn, method), payload)
@@ -113,6 +101,7 @@ defmodule BankWeb.AccountControllerTest do
     |> Map.delete("id")
   end
 
+  # Helper function to transform a map with atom keys to map with string keys
   defp build_expected_result(payload) do
     @blank_account
     |> Map.merge(payload)
