@@ -24,7 +24,7 @@ defmodule BankWeb.AccountControllerTest do
 
   test "valid create requests", %{conn: conn} do
     test_valid_request(conn, %{city: "abcd", state: "efgh", gender: "male", country: "ijkl"})
-    test_valid_request(conn, %{birth_date: "2020-01-31", name: "oliver", gender: "other"})
+    test_valid_request(conn, %{birth_date: "2000-01-31", name: "oliver", gender: "other"})
     test_valid_request(conn, %{referral_code: "11223344", email: "lets@go.com", gender: "other"})
   end
 

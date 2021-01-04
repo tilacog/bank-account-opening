@@ -1,5 +1,6 @@
 defmodule Bank.Account.PartialAccount do
   alias Bank.Auth.ApiUser
+  alias Bank.Account.BirthDateHelper
 
   use Ecto.Schema
   import Ecto.Changeset
@@ -30,6 +31,7 @@ defmodule Bank.Account.PartialAccount do
     |> validate_length(:referral_code, is: 8)
     |> validate_email(:email)
     |> validate_referral_code()
+    |> validate_birth_date()
     |> unique_constraint(:referral_code)
     |> unique_constraint(:email)
     |> unique_constraint(:api_user)
@@ -64,6 +66,28 @@ defmodule Bank.Account.PartialAccount do
     case Integer.parse(str) do
       {_num, ""} -> true
       _ -> false
+    end
+  end
+
+  defp validate_birth_date(changeset) do
+    case changeset do
+      %Ecto.Changeset{changes: %{birth_date: birth_date}} ->
+        age_in_valid_range? = Enum.member?(BirthDateHelper.valid_birth_date_range(), birth_date)
+
+        if age_in_valid_range? do
+          changeset
+        else
+          add_error(
+            changeset,
+            :birth_date,
+            "age must be between #{BirthDateHelper.min_customer_age()} and #{
+              BirthDateHelper.max_customer_age()
+            } years old"
+          )
+        end
+
+      _ ->
+        changeset
     end
   end
 end

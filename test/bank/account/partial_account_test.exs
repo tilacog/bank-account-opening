@@ -1,6 +1,7 @@
 defmodule Bank.Account.PartialAccountTest do
   use Bank.DataCase, async: true
   alias Bank.Account.PartialAccount
+  alias Bank.Account.BirthDateHelper
 
   test "email can't be invalid" do
     changeset = PartialAccount.changeset(%PartialAccount{}, %{email: "invalid"})
@@ -21,14 +22,29 @@ defmodule Bank.Account.PartialAccountTest do
 
   test "birth date can't be invalid" do
     test_bad_inputs(
-      ["invalid", "20200101", "2020/01/01", "2020-02-31"],
+      ["invalid", "20200101", "2020/01/01"],
       ["is invalid"],
+      :birth_date
+    )
+
+    %{max: max_birth_date, min: min_birth_date} = BirthDateHelper.min_max_birth_dates()
+    # shift dates out of bounds
+    max_birth_date = Date.add(max_birth_date, -1)
+    min_birth_date = Date.add(min_birth_date, 1)
+
+    test_bad_inputs(
+      [max_birth_date, min_birth_date] |> Enum.map(&Date.to_iso8601(&1)),
+      [
+        "age must be between #{BirthDateHelper.min_customer_age()} and #{
+          BirthDateHelper.max_customer_age()
+        } years old"
+      ],
       :birth_date
     )
   end
 
   test "birth date must be valid" do
-    test_good_inputs(["2020-01-01", "1990-12-31"], :birth_date)
+    test_good_inputs(["2000-01-01", "1990-12-31"], :birth_date)
   end
 
   test "referral_code can't be invalid" do
