@@ -1,5 +1,7 @@
 defmodule BankWeb.AccountControllerTest do
   use BankWeb.ConnCase
+  alias Bank.Repo
+  alias Bank.Account.PartialAccount
 
   @valid_partial_input %{
     name: "john doe"
@@ -69,6 +71,30 @@ defmodule BankWeb.AccountControllerTest do
 
     assert third_response ==
              first_response |> Map.merge(second_response) |> Map.merge(third_response)
+  end
+
+  test "only one partial_account per api_user", %{conn: conn} do
+    api_user = api_user_fixture()
+    conn = assign(conn, :api_user, api_user)
+    payload = %{}
+
+    assert Repo.aggregate(PartialAccount, :count) == 0
+
+    _first_response =
+      conn
+      |> post(Routes.account_path(conn, :create), payload)
+      |> json_response(201)
+
+    assert Repo.aggregate(PartialAccount, :count) == 1
+
+    # so far so good
+
+    _second_response =
+      conn
+      |> post(Routes.account_path(conn, :create), payload)
+      |> json_response(422)
+
+    assert Repo.aggregate(PartialAccount, :count) == 1
   end
 
   defp test_valid_request(conn, payload) do

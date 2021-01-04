@@ -19,6 +19,7 @@ defmodule Bank.Repo.Migrations.CreatePartialAccount do
 
     create unique_index(:partial_accounts, [:referral_code])
     create unique_index(:partial_accounts, [:email])
+    create unique_index(:partial_accounts, [:api_user_id])
 
   end
 end
