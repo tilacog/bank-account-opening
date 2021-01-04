@@ -35,7 +35,7 @@ defmodule BankWeb.AccountControllerTest do
     first_payload = %{name: "michael jordan", gender: "male"}
 
     second_payload = %{
-      update: %{
+      updates: %{
         city: "new york",
         state: "new york",
         country: "usa",
@@ -44,7 +44,7 @@ defmodule BankWeb.AccountControllerTest do
     }
 
     third_payload = %{
-      update: %{
+      updates: %{
         referral_code: "12341234",
         email: "mj@nba.com"
       }

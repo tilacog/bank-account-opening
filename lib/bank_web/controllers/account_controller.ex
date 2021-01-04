@@ -19,7 +19,7 @@ defmodule BankWeb.AccountController do
     end
   end
 
-  def update(conn, %{"id" => id, "update" => update_params}) do
+  def update(conn, %{"id" => id, "updates" => update_params}) do
     partial_account = Account.get_partial_account!(id)
 
     with {:ok, %PartialAccount{} = partial_account} <-
