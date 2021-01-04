@@ -1,5 +1,5 @@
 defmodule Bank.Vault do
-  use Cloak.Vault, otp_app: bank
+  use Cloak.Vault, otp_app: :bank
 
   @impl GenServer
   def init(config) do
