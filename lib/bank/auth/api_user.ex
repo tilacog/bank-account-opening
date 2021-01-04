@@ -3,7 +3,8 @@ defmodule Bank.Auth.ApiUser do
   import Ecto.Changeset
 
   schema "api_users" do
-    field :cpf, :string
+    field :cpf, Bank.Encrypted.Binary
+    field :cpf_hash, Cloak.Ecto.SHA256
     field :password, :string, virtual: true
     field :password_hash, :string
 
@@ -24,6 +25,17 @@ defmodule Bank.Auth.ApiUser do
     |> changeset(attrs)
     |> hash_password()
     |> unique_constraint(:cpf)
+  end
+
+  def cloak_changeset(api_user, attrs \\ %{}) do
+    ApiUser
+    |> cast(attrs, [:cpf])
+    |> put_hashed_fields()
+  end
+
+  defp put_hashed_fields(changeset) do
+    changeset
+    |> put_change(:cpf_hash, get_field(changeset, :cpf))
   end
 
   defp format_cpf(changeset) do
