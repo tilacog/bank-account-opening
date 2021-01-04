@@ -28,7 +28,7 @@ defmodule Bank.Auth.ApiUser do
   end
 
   def cloak_changeset(api_user, attrs \\ %{}) do
-    ApiUser
+    api_user
     |> cast(attrs, [:cpf])
     |> put_hashed_fields()
   end
