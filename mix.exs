@@ -43,7 +43,8 @@ defmodule Bank.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:pbkdf2_elixir, "~> 1.2"},
       {:brcpfcnpj, "~> 0.2"},
-      {:ecto_commons, "~> 0.3.0"}
+      {:ecto_commons, "~> 0.3.0"},
+      {:cloak_ecto, "~> 1.0.1"}
     ]
   end
 
