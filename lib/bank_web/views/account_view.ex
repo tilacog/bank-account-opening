@@ -11,8 +11,7 @@ defmodule BankWeb.AccountView do
       city: pacc.city,
       state: pacc.state,
       country: pacc.country,
-      referral_code: pacc.referral_code,
-      owner_cpf: pacc.api_user.cpf
+      referral_code: pacc.referral_code
     }
   end
 end

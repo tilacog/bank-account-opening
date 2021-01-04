@@ -1,7 +1,6 @@
 defmodule BankWeb.AccountController do
   use BankWeb, :controller
   import BankWeb.AuthController, only: [authenticate_api_user: 2]
-  alias Bank.Auth.ApiUser
   alias Bank.Account
   alias Bank.Account.PartialAccount
 
@@ -17,6 +16,15 @@ defmodule BankWeb.AccountController do
       conn
       |> put_status(:created)
       |> render("partial_account.json", partial_account: partial_account)
+    end
+  end
+
+  def update(conn, %{"id" => id, "update" => update_params}) do
+    partial_account = Account.get_partial_account!(id)
+
+    with {:ok, %PartialAccount{} = partial_account} <-
+           Account.update_partial_account(partial_account, update_params) do
+      render(conn, "partial_account.json", partial_account: partial_account)
     end
   end
 end
