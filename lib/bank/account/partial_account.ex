@@ -32,6 +32,7 @@ defmodule Bank.Account.PartialAccount do
     |> validate_referral_code()
     |> unique_constraint(:referral_code)
     |> unique_constraint(:email)
+    |> unique_constraint(:api_user)
   end
 
   def is_finished?(changeset) do

@@ -5,7 +5,7 @@ defmodule Bank.Repo.Migrations.CreatePartialAccount do
     create table(:partial_accounts) do
       add :name, :string
       add :email, :string
-      add :birth_date, :utc_datetime
+      add :birth_date, :date
       add :gender, :string
       add :city, :string
       add :state, :string
