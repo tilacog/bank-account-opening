@@ -28,11 +28,6 @@ defmodule Bank.Auth.ApiUser do
     |> unique_constraint(:cpf_hash)
   end
 
-  def decrypt_changeset(user) do
-    user
-    |> decrypt_cpf()
-  end
-
   defp format_cpf(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{cpf: given_cpf}} ->
@@ -70,18 +65,20 @@ defmodule Bank.Auth.ApiUser do
   defp encrypt_cpf(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{cpf: cpf}} ->
-        put_change(changeset, :cpf, Bank.Vault.encrypt!(cpf))
-        cpf_hash = Bank.Auth.hash_cpf(cpf)
-        put_change(changeset, :cpf_hash, cpf_hash)
+        encrypted_cpf = Bank.Vault.encrypt!(cpf)
+        hashed_cpf = hash_cpf(cpf)
+
+        changeset
+        |> put_change(:cpf_hash, hashed_cpf)
+        |> put_change(:cpf, encrypted_cpf)
 
       _ ->
         changeset
     end
   end
 
-  defp decrypt_cpf(changeset) do
-    encrypted_cpf = get_field(changeset, :cpf)
-    decrypted_cpf = Bank.Vault.decrypt!(encrypted_cpf)
-    put_change(changeset, :cpf, decrypted_cpf)
+  def hash_cpf(cpf) do
+    key = Application.get_env(:bank, BankWeb.Endpoint)[:secret_key_base]
+    :crypto.hmac(:sha256, key, cpf)
   end
 end
