@@ -58,7 +58,7 @@ defmodule BankWeb.AuthControllerTest do
     # again
     conn = post(conn, Routes.auth_path(conn, :create), @valid_input)
     body = json_response(conn, 422)
-    assert "has already been taken" in body["errors"]["cpf"]
+    assert "has already been taken" in body["errors"]["cpf_hash"]
     # still only one api user
     assert Repo.aggregate(ApiUser, :count) == 1
   end

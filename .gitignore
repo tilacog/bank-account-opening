@@ -28,4 +28,4 @@ bank-*.tar
 /priv/static/
 
 
-.db_data
+.pg_data
