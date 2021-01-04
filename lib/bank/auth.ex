@@ -12,26 +12,33 @@ defmodule Bank.Auth do
   end
 
   def get_user_by_cpf(cpf) do
+    # prepare CPF input
     formatted_cpf = Brcpfcnpj.cpf_format(%Cpf{number: cpf})
     hashed_cpf = ApiUser.hash_cpf(formatted_cpf)
+    # query using hashed CPF
     api_user = Repo.get_by(ApiUser, cpf_hash: hashed_cpf)
+
+    if api_user do
+      # prepare output with decrypted CPF field
+      decrypted_cpf = Bank.Vault.decrypt!(api_user.cpf)
+      decripted_user = Map.put(api_user, :cpf, decrypted_cpf)
+      {:ok, decripted_user}
+    else
+      {:error}
+    end
   end
 
   def authenticate_by_cpf_and_password(given_cpf, given_password) do
-    api_user = get_user_by_cpf(given_cpf)
+    case get_user_by_cpf(given_cpf) do
+      {:ok, api_user} ->
+        case Pbkdf2.verify_pass(given_password, api_user.password_hash) do
+          true -> {:ok, api_user}
+          false -> {:error, :unauthorized}
+        end
 
-    cond do
-      api_user && Pbkdf2.verify_pass(given_password, api_user.password_hash) ->
-        {:ok, api_user}
-
-      api_user ->
-        {:error, :unauthorized}
-
-      true ->
+      {:error} ->
         Pbkdf2.no_user_verify()
         {:error, :not_found}
     end
   end
-
-
 end

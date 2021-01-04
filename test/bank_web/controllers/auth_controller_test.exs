@@ -17,7 +17,7 @@ defmodule BankWeb.AuthControllerTest do
     assert is_nil(Map.get(body, "errors"))
 
     # user exists
-    created_api_user = Auth.get_user_by_cpf(@valid_cpf)
+    {:ok, created_api_user} = Auth.get_user_by_cpf(@valid_cpf)
     assert created_api_user
     assert created_api_user.cpf == Brcpfcnpj.cpf_format(%Cpf{number: @valid_cpf})
   end
