@@ -3,7 +3,8 @@ defmodule Bank.Auth.ApiUser do
   import Ecto.Changeset
 
   schema "api_users" do
-    field :cpf, :string
+    field :cpf, :binary
+    field :cpf_hash, :binary
     field :password, :string, virtual: true
     field :password_hash, :string
 
@@ -23,7 +24,8 @@ defmodule Bank.Auth.ApiUser do
     user
     |> changeset(attrs)
     |> hash_password()
-    |> unique_constraint(:cpf)
+    |> encrypt_cpf()
+    |> unique_constraint(:cpf_hash)
   end
 
   defp format_cpf(changeset) do
@@ -54,6 +56,19 @@ defmodule Bank.Auth.ApiUser do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
         put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(pass))
+
+      _ ->
+        changeset
+    end
+  end
+
+  defp encrypt_cpf(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{cpf: cpf}} ->
+        put_change(changeset, :cpf, Bank.Vault.encrypt!(cpf))
+        key = Application.get_env(:bank, BankWeb.Endpoint)[:secret_key_base]
+        hash = :crypto.hmac(:sha256, key, cpf)
+        put_change(changeset, :cpf_hash, hash)
 
       _ ->
         changeset

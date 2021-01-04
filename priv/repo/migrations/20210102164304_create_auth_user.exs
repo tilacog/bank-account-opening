@@ -3,13 +3,14 @@ defmodule Bank.Repo.Migrations.CreateAuthUser do
 
   def change do
     create table(:api_users) do
-      add :cpf, :string, null: false
+      add :cpf, :binary, null: false
+      add :cpf_hash, :binary, null: false
       add :password_hash, :string, null: false
 
       timestamps()
     end
 
-    create unique_index(:api_users, [:cpf])
+    create unique_index(:api_users, [:cpf_hash])
 
   end
 end
