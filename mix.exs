@@ -45,6 +45,7 @@ defmodule Bank.MixProject do
       {:brcpfcnpj, "~> 0.2"},
       {:ecto_commons, "~> 0.3.0"},
       {:cloak, "1.0.2"},
+      {:secure_compare, "~> 0.1.0"}
     ]
   end
 
