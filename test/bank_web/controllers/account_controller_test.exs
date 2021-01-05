@@ -18,19 +18,19 @@ defmodule BankWeb.AccountControllerTest do
     state: nil
   }
 
-  test "anonymous requests are rejected", %{conn: conn} do
+  test "anonymous create requests are rejected", %{conn: conn} do
     conn = post(conn, Routes.account_path(conn, :create), @valid_partial_input)
     body = json_response(conn, 401)
     assert %{"error" => "Unauthorized"} = body
   end
 
-  test "valid create requests", %{conn: conn} do
+  test "valid create requests are accpeted", %{conn: conn} do
     test_valid_request(conn, %{city: "abcd", state: "efgh", gender: "male", country: "ijkl"})
     test_valid_request(conn, %{birth_date: "2000-01-31", name: "oliver", gender: "other"})
     test_valid_request(conn, %{referral_code: "11223344", email: "lets@go.com", gender: "other"})
   end
 
-  test "valid partial update requests", %{conn: conn} do
+  test "valid partial update requests are accepted", %{conn: conn} do
     api_user = api_user_fixture()
     conn = assign(conn, :api_user, api_user)
 
@@ -83,7 +83,7 @@ defmodule BankWeb.AccountControllerTest do
     assert Repo.aggregate(PartialAccount, :count) == 1
   end
 
-  # Helper function to quickly setup and assert a test case
+  # Helper function to quickly setup and assert a test case for the :create action
   defp test_valid_request(conn, payload) do
     cpf = Brcpfcnpj.cpf_generate()
     api_user = api_user_fixture(cpf: cpf)
