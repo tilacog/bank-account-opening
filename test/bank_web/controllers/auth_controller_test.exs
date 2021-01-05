@@ -2,6 +2,7 @@ defmodule BankWeb.AuthControllerTest do
   use BankWeb.ConnCase
 
   alias Bank.Auth
+  alias Bank.Auth.Token
   alias Bank.Auth.ApiUser
   alias Bank.Repo
 
