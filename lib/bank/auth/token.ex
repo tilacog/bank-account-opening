@@ -7,7 +7,8 @@ defmodule Bank.Auth.Token do
   """
   def sign(value) do
     signature = get_signature(value)
-    value <> @sep <> signature
+    value_b64 = Base.encode64(value)
+    value_b64 <> @sep <> signature
   end
 
   @doc """
@@ -15,7 +16,8 @@ defmodule Bank.Auth.Token do
   """
   def unsign(signed_value) do
     with true <- String.contains?(signed_value, @sep),
-         [value, signature] <- String.split(signed_value, @sep),
+         [value_b64, signature] <- String.split(signed_value, @sep),
+         {:ok, value} <- Base.decode64(value_b64),
          true <- verify_signature(value, signature) do
       {:ok, value}
     else

@@ -9,4 +9,11 @@ defmodule Bank.Auth.TokenTest do
     {:ok, unsigned} = Token.unsign(signed)
     assert unsigned == message
   end
+
+  test "encodes the message in Base64" do
+    message = "Rosebud"
+    signed = Token.sign(message)
+    [head, _] = String.split(signed, ".")
+    assert message == Base.decode64!(head)
+  end
 end

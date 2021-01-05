@@ -1,15 +1,11 @@
 defmodule BankWeb.AuthTokenTest do
   use BankWeb.ConnCase
 
-  alias Bank.Auth
   alias Bank.Auth.Token
-  alias Bank.Auth.ApiUser
-  alias Bank.Repo
+
 
   @valid_cpf "00000000191"
   @valid_password "1234567890"
-  @invalid_cpf "00000000000"
-  @invalid_password "12345"
   @valid_input [cpf: @valid_cpf, password: @valid_password]
 
   test "returns valid token on success", %{conn: conn} do
