@@ -8,6 +8,12 @@ defmodule BankWeb.AccountController do
 
   plug :authenticate_api_user
 
+  def show(conn, %{"id" => id}) do
+    with {:ok, %PartialAccount{} = partial_account} <- Account.get_partial_account(id) do
+      render(conn, "partial_account.json", partial_account: partial_account)
+    end
+  end
+
   def create(conn, params) do
     api_user = conn.assigns[:api_user]
 

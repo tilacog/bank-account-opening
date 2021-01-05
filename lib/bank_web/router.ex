@@ -9,6 +9,6 @@ defmodule BankWeb.Router do
     pipe_through :api
 
     resources "/auth", AuthController, only: [:create]
-    resources "/accounts", AccountController, only: [:create, :update]
+    resources "/accounts", AccountController, only: [:create, :update, :show]
   end
 end
