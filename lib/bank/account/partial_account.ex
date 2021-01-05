@@ -7,11 +7,13 @@ defmodule Bank.Account.PartialAccount do
   import EctoCommons.EmailValidator
 
   @genders ~w(male female other)
+  @fields_to_encrypt ~w(name email birth_date)a
 
   schema "partial_accounts" do
-    field :name, :string
-    field :email, :string
-    field :birth_date, :date
+    field :name, :binary
+    field :email, :binary
+    field :email_hash, :binary
+    field :birth_date, :binary
     field :gender, :string
     field :city, :string
     field :state, :string
@@ -31,9 +33,10 @@ defmodule Bank.Account.PartialAccount do
     |> validate_length(:referral_code, is: 8)
     |> validate_email(:email)
     |> validate_referral_code()
-    |> validate_birth_date()
+    |> validate_iso8601(:birth_date)
+    |> validate_birth_date_range()
     |> unique_constraint(:referral_code)
-    |> unique_constraint(:email)
+    |> unique_constraint(:email_hash)
     |> unique_constraint(:api_user_id)
   end
 
@@ -69,22 +72,45 @@ defmodule Bank.Account.PartialAccount do
     end
   end
 
-  defp validate_birth_date(changeset) do
-    case changeset do
-      %Ecto.Changeset{changes: %{birth_date: birth_date}} ->
-        age_in_valid_range? = Enum.member?(BirthDateHelper.valid_birth_date_range(), birth_date)
+  def validate_iso8601(changeset, field) do
+    validate_change(changeset, field, fn field, change ->
+      case Date.from_iso8601(change) do
+        {:ok, _} -> []
+        _error -> [{field, "invalid date format"}]
+      end
+    end)
+  end
 
-        if age_in_valid_range? do
+  defp validate_birth_date_range(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{birth_date: birth_date}} ->
+        if birth_date |> Date.from_iso8601!() |> BirthDateHelper.valid_range() do
           changeset
         else
-          add_error(
-            changeset,
-            :birth_date,
-            "age must be between #{BirthDateHelper.min_customer_age()} and #{
-              BirthDateHelper.max_customer_age()
-            } years old"
-          )
+          add_error(changeset, :birth_date, BirthDateHelper.error_message())
         end
+
+      _ ->
+        changeset
+    end
+  end
+
+  def encrypt_fields(changeset) do
+    case changeset do
+      %Ecto.Changeset{changes: changes} ->
+        changes
+        # build a map of encrypted keys, whenever needed
+        |> Enum.reduce(%{}, fn {key, value}, acc ->
+          if Enum.member?(@fields_to_encrypt, key) do
+            Map.put(acc, key, Bank.Vault.encrypt!(value))
+          else
+            acc
+          end
+        end)
+        # put those changes in the changeset
+        |> Enum.reduce(changeset, fn {key, value}, acc ->
+          put_change(acc, key, value)
+        end)
 
       _ ->
         changeset

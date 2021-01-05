@@ -3,6 +3,21 @@ defmodule Bank.Account.PartialAccountTest do
   alias Bank.Account.PartialAccount
   alias Bank.Account.BirthDateHelper
 
+  test "encrypt fields changeset" do
+    email = "decripted@test.com"
+    name = "john doe"
+    birth_date = "2000-01-01"
+
+    encrypted =
+      %PartialAccount{}
+      |> PartialAccount.changeset(%{email: email, name: name, birth_date: birth_date})
+      |> PartialAccount.encrypt_fields()
+
+    assert Bank.Vault.decrypt!(encrypted.changes.email) == email
+    assert Bank.Vault.decrypt!(encrypted.changes.name) == name
+    assert Bank.Vault.decrypt!(encrypted.changes.birth_date) == birth_date
+  end
+
   test "email can't be invalid" do
     changeset = PartialAccount.changeset(%PartialAccount{}, %{email: "invalid"})
     assert %{email: ["is not a valid email"]} = errors_on(changeset)
@@ -23,7 +38,7 @@ defmodule Bank.Account.PartialAccountTest do
   test "birth date can't be invalid" do
     test_bad_inputs(
       ["invalid", "20200101", "2020/01/01"],
-      ["is invalid"],
+      ["invalid date format"],
       :birth_date
     )
 

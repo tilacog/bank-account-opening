@@ -3,9 +3,10 @@ defmodule Bank.Repo.Migrations.CreatePartialAccount do
 
   def change do
     create table(:partial_accounts) do
-      add :name, :string
-      add :email, :string
-      add :birth_date, :date
+      add :name, :binary
+      add :email, :binary
+      add :email_hash, :binary # for indexing
+      add :birth_date, :binary
       add :gender, :string
       add :city, :string
       add :state, :string
@@ -18,7 +19,7 @@ defmodule Bank.Repo.Migrations.CreatePartialAccount do
     end
 
     create unique_index(:partial_accounts, [:referral_code])
-    create unique_index(:partial_accounts, [:email])
+    create unique_index(:partial_accounts, [:email_hash])
     create unique_index(:partial_accounts, [:api_user_id])
 
   end

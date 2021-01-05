@@ -7,6 +7,11 @@ defmodule Bank.Account.BirthDateHelper do
 
   def max_customer_age, do: @max_customer_age
   def min_customer_age, do: @min_customer_age
+  def error_message, do: "age must be between #{@min_customer_age} and #{@max_customer_age} years old"
+
+  def valid_range(birth_date) do
+    Enum.member?(valid_birth_date_range(), birth_date)
+  end
 
   def min_max_birth_dates() do
     today = Date.utc_today()
