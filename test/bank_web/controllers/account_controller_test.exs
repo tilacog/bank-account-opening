@@ -89,7 +89,7 @@ defmodule BankWeb.AccountControllerTest do
     api_user = api_user_fixture(cpf: cpf)
     response_body = dispatch_request(conn, api_user, payload, :create, 201)
     expected = build_expected_result(payload)
-    assert expected == response_body
+    assert expected == Map.delete(response_body, "id")
   end
 
   # Helper function to quickly dispatch a request to the server
@@ -98,7 +98,6 @@ defmodule BankWeb.AccountControllerTest do
     |> assign(:api_user, api_user)
     |> post(Routes.account_path(conn, method), payload)
     |> json_response(status_code)
-    |> Map.delete("id")
   end
 
   # Helper function to transform a map with atom keys to map with string keys
