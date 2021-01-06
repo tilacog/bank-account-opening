@@ -30,6 +30,20 @@ defmodule BankWeb.AccountControllerTest do
     test_valid_request(conn, %{referral_code: "11223344", email: "lets@go.com", gender: "other"})
   end
 
+  test "can retrieve a partial account by id", %{conn: conn} do
+    api_user = api_user_fixture()
+    conn = assign(conn, :api_user, api_user)
+    assert Repo.aggregate(PartialAccount, :count) == 0
+    partial_account = dispatch_request(conn, api_user, @valid_partial_input, :create, 201)
+    id = Map.get(partial_account, "id")
+
+    body =
+      get(conn, Routes.account_path(conn, :show, id))
+      |> json_response(200)
+
+    assert body == partial_account
+  end
+
   test "valid partial update requests are accepted", %{conn: conn} do
     api_user = api_user_fixture()
     conn = assign(conn, :api_user, api_user)

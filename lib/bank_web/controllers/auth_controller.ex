@@ -31,7 +31,7 @@ defmodule BankWeb.AuthController do
              Auth.get_user_by_cpf(cpf) do
         assign(conn, :api_user, api_user)
       else
-        error ->
+        _error ->
           conn
           |> put_resp_content_type("application/json")
           |> send_resp(:unauthorized, Jason.encode!(%{error: "Unauthorized"}))

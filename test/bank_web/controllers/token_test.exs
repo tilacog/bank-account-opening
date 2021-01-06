@@ -3,7 +3,6 @@ defmodule BankWeb.AuthTokenTest do
 
   alias Bank.Auth.Token
 
-
   @valid_cpf "00000000191"
   @valid_password "1234567890"
   @valid_input [cpf: @valid_cpf, password: @valid_password]
@@ -24,8 +23,8 @@ defmodule BankWeb.AuthTokenTest do
       |> post(Routes.auth_path(conn, :create), @valid_input)
       |> json_response(201)
 
-
     %{"token" => token} = body
+
     conn
     |> put_req_header("authorization", token)
     |> put_resp_content_type("application/json")
@@ -40,5 +39,4 @@ defmodule BankWeb.AuthTokenTest do
     |> post(Routes.account_path(conn, :create), %{})
     |> json_response(401)
   end
-
 end

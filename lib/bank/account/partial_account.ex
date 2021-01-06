@@ -99,14 +99,36 @@ defmodule Bank.Account.PartialAccount do
   end
 
   def encrypt_field(changeset, field) do
-    value = fetch_field(changeset, field)
-    encrypted = Bank.Vault.encrypt!(value)
-    put_change(changeset, field, encrypted)
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: changes} ->
+        value = Map.get(changes, field)
+
+        if value != nil do
+          encrypted = Bank.Vault.encrypt!(value)
+          put_change(changeset, field, encrypted)
+        else
+          changeset
+        end
+
+      _ ->
+        changeset
+    end
   end
 
   def hash_field(changeset, field, hashed_field) do
-    value = fetch_field(changeset, field)
-    hashed = :crypto.hash(:sha256, value)
-    put_change(changeset, hashed_field, hashed)
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: changes} ->
+        value = Map.get(changes, field)
+
+        if value != nil do
+          hashed = :crypto.hash(:sha256, value)
+          put_change(changeset, hashed_field, hashed)
+        else
+          changeset
+        end
+
+      _ ->
+        changeset
+    end
   end
 end
