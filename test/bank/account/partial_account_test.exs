@@ -10,8 +10,10 @@ defmodule Bank.Account.PartialAccountTest do
 
     encrypted =
       %PartialAccount{}
-      |> PartialAccount.changeset(%{email: email, name: name, birth_date: birth_date})
-      |> PartialAccount.encrypt_fields()
+      |> Ecto.Changeset.cast(%{email: email, name: name, birth_date: birth_date}, [:email, :name, :birth_date])
+      |> PartialAccount.encrypt_field(:email)
+      |> PartialAccount.encrypt_field(:name)
+      |> PartialAccount.encrypt_field(:birth_date)
 
     assert Bank.Vault.decrypt!(encrypted.changes.email) == email
     assert Bank.Vault.decrypt!(encrypted.changes.name) == name

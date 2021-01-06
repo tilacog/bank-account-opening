@@ -7,7 +7,13 @@ defmodule Bank.Account do
   alias Bank.Auth.ApiUser
 
   def get_partial_account!(id), do: Repo.get!(PartialAccount, id)
-  def get_partial_account(id), do: Repo.get(PartialAccount, id)
+
+  def get_partial_account(id) do
+    result = Repo.get(PartialAccount, id)
+    require IEx
+    IEx.pry()
+    result
+  end
 
   def create_partial_account(%ApiUser{} = api_user, attrs \\ %{}) do
     %PartialAccount{}

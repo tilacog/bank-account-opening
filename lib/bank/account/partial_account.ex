@@ -7,7 +7,6 @@ defmodule Bank.Account.PartialAccount do
   import EctoCommons.EmailValidator
 
   @genders ~w(male female other)
-  @fields_to_encrypt ~w(name email birth_date)a
 
   schema "partial_accounts" do
     field :name, :binary
@@ -35,6 +34,10 @@ defmodule Bank.Account.PartialAccount do
     |> validate_referral_code()
     |> validate_iso8601(:birth_date)
     |> validate_birth_date_range()
+    |> hash_field(:email, :email_hash)
+    |> encrypt_field(:email)
+    |> encrypt_field(:birth_date)
+    |> encrypt_field(:name)
     |> unique_constraint(:referral_code)
     |> unique_constraint(:email_hash)
     |> unique_constraint(:api_user_id)
@@ -95,25 +98,15 @@ defmodule Bank.Account.PartialAccount do
     end
   end
 
-  def encrypt_fields(changeset) do
-    case changeset do
-      %Ecto.Changeset{changes: changes} ->
-        changes
-        # build a map of encrypted keys, whenever needed
-        |> Enum.reduce(%{}, fn {key, value}, acc ->
-          if Enum.member?(@fields_to_encrypt, key) do
-            Map.put(acc, key, Bank.Vault.encrypt!(value))
-          else
-            acc
-          end
-        end)
-        # put those changes in the changeset
-        |> Enum.reduce(changeset, fn {key, value}, acc ->
-          put_change(acc, key, value)
-        end)
+  def encrypt_field(changeset, field) do
+    value = fetch_field(changeset, field)
+    encrypted = Bank.Vault.encrypt!(value)
+    put_change(changeset, field, encrypted)
+  end
 
-      _ ->
-        changeset
-    end
+  def hash_field(changeset, field, hashed_field) do
+    value = fetch_field(changeset, field)
+    hashed = :crypto.hash(:sha256, value)
+    put_change(changeset, hashed_field, hashed)
   end
 end
