@@ -20,6 +20,7 @@ defmodule Bank.Account.PartialAccount do
     field :country, :string
     # TODO: set assoc on referral_code
     field :referral_code, :string
+    field :self_referral_code, :string
 
     belongs_to :api_user, ApiUser
 
@@ -39,7 +40,7 @@ defmodule Bank.Account.PartialAccount do
     |> encrypt_field(:email)
     |> encrypt_field(:birth_date)
     |> encrypt_field(:name)
-    |> unique_constraint(:referral_code)
+    |> foreign_key_constraint(:referral_code)
     |> unique_constraint(:email_hash)
     |> unique_constraint(:api_user_id)
   end

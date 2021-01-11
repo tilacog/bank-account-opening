@@ -26,14 +26,16 @@ defmodule BankWeb.AccountControllerTest do
 
   test "valid create requests are accpeted", %{conn: conn} do
     test_valid_request(conn, %{city: "abcd", state: "efgh", gender: "male", country: "ijkl"})
+
     test_valid_request(conn, %{birth_date: "2000-01-31", name: "oliver", gender: "other"})
-    test_valid_request(conn, %{referral_code: "11223344", email: "lets@go.com", gender: "other"})
+
+    test_valid_request(conn, %{email: "lets@go.com", gender: "other"})
   end
 
   test "can retrieve a partial account by id", %{conn: conn} do
     api_user = api_user_fixture()
     conn = assign(conn, :api_user, api_user)
-    assert Repo.aggregate(PartialAccount, :count) == 0
+    assert Repo.aggregate(PartialAccount, :count) == 1
     partial_account = dispatch_request(conn, api_user, @valid_partial_input, :create, 201)
     id = Map.get(partial_account, "id")
 
@@ -61,7 +63,7 @@ defmodule BankWeb.AccountControllerTest do
 
     third_payload = %{
       updates: %{
-        referral_code: "12341234",
+        referral_code: genesis_referral_code,
         email: "mj@nba.com"
       }
     }
@@ -90,11 +92,11 @@ defmodule BankWeb.AccountControllerTest do
   test "only one partial_account per api_user", %{conn: conn} do
     api_user = api_user_fixture()
     conn = assign(conn, :api_user, api_user)
-    assert Repo.aggregate(PartialAccount, :count) == 0
+    assert Repo.aggregate(PartialAccount, :count) == 1
     dispatch_request(conn, api_user, %{}, :create, 201)
-    assert Repo.aggregate(PartialAccount, :count) == 1
+    assert Repo.aggregate(PartialAccount, :count) == 2
     dispatch_request(conn, api_user, %{}, :create, 422)
-    assert Repo.aggregate(PartialAccount, :count) == 1
+    assert Repo.aggregate(PartialAccount, :count) == 2
   end
 
   # Helper function to quickly setup and assert a test case for the :create action
