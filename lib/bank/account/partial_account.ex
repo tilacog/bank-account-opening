@@ -18,7 +18,6 @@ defmodule Bank.Account.PartialAccount do
     field :city, :string
     field :state, :string
     field :country, :string
-    # TODO: set assoc on referral_code
     field :referral_code, :string
     field :self_referral_code, :string
 

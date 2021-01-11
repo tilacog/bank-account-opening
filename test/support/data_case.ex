@@ -24,6 +24,7 @@ defmodule Bank.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Bank.DataCase
+      import Bank.TestHelpers
     end
   end
 

@@ -1,6 +1,7 @@
 defmodule Bank.Account.PartialAccountTest do
   use Bank.DataCase, async: true
   alias Bank.Account.PartialAccount
+  alias Bank.Account
   alias Bank.Account.BirthDateHelper
 
   test "encrypt fields changeset" do
@@ -10,7 +11,10 @@ defmodule Bank.Account.PartialAccountTest do
 
     encrypted =
       %PartialAccount{}
-      |> Ecto.Changeset.cast(%{email: email, name: name, birth_date: birth_date}, [:email, :name, :birth_date])
+      |> Ecto.Changeset.cast(
+        %{email: email, name: name, birth_date: birth_date},
+        [:email, :name, :birth_date]
+      )
       |> PartialAccount.encrypt_field(:email)
       |> PartialAccount.encrypt_field(:name)
       |> PartialAccount.encrypt_field(:birth_date)
@@ -86,5 +90,24 @@ defmodule Bank.Account.PartialAccountTest do
     for input <- inputs do
       assert PartialAccount.changeset(%PartialAccount{}, %{key => input}).valid?
     end
+  end
+
+  test "can use a good referral code" do
+    user = api_user_fixture()
+    result = Account.create_partial_account(user, %{referral_code: genesis_referral_code})
+    assert {:ok, _partial_account} = result
+  end
+
+  test "can't use a bad referral code" do
+    user = api_user_fixture()
+    result = Account.create_partial_account(user, %{referral_code: "00110011"})
+    assert {:error, %Ecto.Changeset{} = invalid_changeset} = result
+    refute invalid_changeset.valid?
+
+    assert {"does not exist",
+            [
+              {:constraint, :foreign},
+              {:constraint_name, "partial_accounts_referral_code_fkey"}
+            ]} = invalid_changeset.errors[:referral_code]
   end
 end
