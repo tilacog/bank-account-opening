@@ -59,4 +59,12 @@ defmodule Bank.Account do
         {:error, error}
     end
   end
+
+  def gen_referral_code(referral_code_lenght \\ 8) do
+    :math.pow(10, referral_code_lenght)
+    |> round
+    |> :rand.uniform()
+    |> to_string
+    |> String.pad_leading(referral_code_lenght, "0")
+  end
 end
