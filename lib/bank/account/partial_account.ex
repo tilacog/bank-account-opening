@@ -7,6 +7,7 @@ defmodule Bank.Account.PartialAccount do
   import EctoCommons.EmailValidator
 
   @genders ~w(male female other)
+  @all_fields ~w(name email birth_date gender city state country referral_code)a
 
   schema "partial_accounts" do
     field :name, :binary
@@ -27,7 +28,7 @@ defmodule Bank.Account.PartialAccount do
 
   def changeset(account, attrs \\ %{}) do
     account
-    |> cast(attrs, [:name, :email, :birth_date, :gender, :city, :state, :country, :referral_code])
+    |> cast(attrs, @all_fields)
     |> validate_inclusion(:gender, @genders)
     |> validate_length(:referral_code, is: 8)
     |> validate_email(:email)
@@ -45,13 +46,8 @@ defmodule Bank.Account.PartialAccount do
 
   def is_finished?(changeset) do
     changeset
-    |> Ecto.Changeset.apply_changes()
-    |> Map.from_struct()
-    |> Map.drop([:__meta__])
-    # keep only empty fields:
-    |> Enum.filter(fn {_key, value} -> is_nil(value) end)
-    # are there any empty fields?
-    |> Enum.empty?()
+    |> validate_required(@all_fields)
+    |> Map.get(:valid?)
   end
 
   defp validate_referral_code(changeset) do
