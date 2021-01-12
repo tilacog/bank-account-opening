@@ -26,9 +26,7 @@ defmodule BankWeb.AccountControllerTest do
 
   test "valid create requests are accpeted", %{conn: conn} do
     test_valid_request(conn, %{city: "abcd", state: "efgh", gender: "male", country: "ijkl"})
-
     test_valid_request(conn, %{birth_date: "2000-01-31", name: "oliver", gender: "other"})
-
     test_valid_request(conn, %{email: "lets@go.com", gender: "other"})
   end
 
@@ -99,12 +97,35 @@ defmodule BankWeb.AccountControllerTest do
     assert Repo.aggregate(PartialAccount, :count) == 2
   end
 
+  test "can create a complete account with a single request", %{conn: conn} do
+    api_user = api_user_fixture()
+    conn = assign(conn, :api_user, api_user)
+
+    payload = %{
+      name: "michael jordan",
+      gender: "male",
+      city: "new york",
+      state: "new york",
+      country: "usa",
+      birth_date: "1963-02-17",
+      referral_code: genesis_referral_code(),
+      email: "mj@nba.com"
+    }
+
+    response =
+      conn
+      |> post(Routes.account_path(conn, :create), payload)
+      |> json_response(201)
+
+    assert %{"status" => "completed"} = response
+  end
+
   # Helper function to quickly setup and assert a test case for the :create action
   defp test_valid_request(conn, payload) do
     cpf = Brcpfcnpj.cpf_generate()
     api_user = api_user_fixture(cpf: cpf)
     response_body = dispatch_request(conn, api_user, payload, :create, 201)
-    expected = build_expected_result(payload)
+    expected = build_expected_result(payload) |> Map.put("status", "incomplete")
     assert expected == Map.delete(response_body, "id")
   end
 
