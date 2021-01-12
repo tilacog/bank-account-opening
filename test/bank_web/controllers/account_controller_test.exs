@@ -71,12 +71,15 @@ defmodule BankWeb.AccountControllerTest do
       |> post(Routes.account_path(conn, :create), first_payload)
       |> json_response(201)
 
+    assert %{"status" => "incomplete"} = first_response
+
     second_response =
       conn
       |> patch(Routes.account_path(conn, :update, first_response["id"], second_payload))
       |> json_response(200)
 
     assert second_response == Map.merge(first_response, second_response)
+    assert %{"status" => "incomplete"} = second_response
 
     third_response =
       conn
@@ -85,6 +88,10 @@ defmodule BankWeb.AccountControllerTest do
 
     assert third_response ==
              first_response |> Map.merge(second_response) |> Map.merge(third_response)
+
+    assert %{"status" => "completed"} = third_response
+    assert %{"self_referral_code" => self_referral_code} = third_response
+    assert self_referral_code != nil
   end
 
   test "only one partial_account per api_user", %{conn: conn} do
