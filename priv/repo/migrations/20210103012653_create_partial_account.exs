@@ -22,10 +22,8 @@ defmodule Bank.Repo.Migrations.CreatePartialAccount do
     create unique_index(:partial_accounts, [:api_user_id])
 
     alter table(:partial_accounts) do
-      add :referral_code, references(:partial_accounts, column: :self_referral_code, type: :string)
+      add :referral_code,
+          references(:partial_accounts, column: :self_referral_code, type: :string)
     end
-    create unique_index(:partial_accounts, [:referral_code])
-
-
   end
 end
