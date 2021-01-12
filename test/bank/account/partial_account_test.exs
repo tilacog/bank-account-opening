@@ -94,7 +94,7 @@ defmodule Bank.Account.PartialAccountTest do
 
   test "can use a good referral code" do
     user = api_user_fixture()
-    result = Account.create_partial_account(user, %{referral_code: genesis_referral_code})
+    result = Account.create_partial_account(user, %{referral_code: genesis_referral_code()})
     assert {:ok, _partial_account} = result
   end
 
@@ -109,5 +109,34 @@ defmodule Bank.Account.PartialAccountTest do
               {:constraint, :foreign},
               {:constraint_name, "partial_accounts_referral_code_fkey"}
             ]} = invalid_changeset.errors[:referral_code]
+  end
+
+  @valid_changes %{
+    name: "foo",
+    email: "foo@bar.com",
+    birth_date: "2000-01-01",
+    gender: "other",
+    city: "AB",
+    state: "CD",
+    country: "EF",
+    referral_code: "12213443"
+  }
+
+  test "complete account will have :self_referral_code field and :completed status" do
+    partial_account = PartialAccount.changeset(%PartialAccount{}, @valid_changes)
+    assert partial_account.changes.completed
+    assert partial_account.changes.self_referral_code != nil
+  end
+
+  test "partial account won't be complete without all required fields" do
+    # omitting a single field will prevent the changeset to be complete
+    Map.keys(@valid_changes)
+    |> Enum.each(fn field ->
+      incomplete_changes = Map.delete(@valid_changes, field)
+      partial_account = PartialAccount.changeset(%PartialAccount{}, incomplete_changes)
+
+      refute Map.has_key?(partial_account, :completed)
+      refute Map.has_key?(partial_account, :referral_code)
+    end)
   end
 end

@@ -2,7 +2,6 @@ defmodule Bank.TestHelpers do
   alias Bank.Repo
   alias Bank.Auth
   alias Bank.Account.PartialAccount
-  alias Bank.Account
 
   @genesis_cpf "00000011126"
 
@@ -31,7 +30,7 @@ defmodule Bank.TestHelpers do
         state: nil,
         country: nil,
         referral_code: nil,
-        self_referral_code: genesis_referral_code,
+        self_referral_code: genesis_referral_code(),
         api_user_id: genesis_user.id
       },
       on_conflict: :nothing

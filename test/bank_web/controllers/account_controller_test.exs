@@ -63,7 +63,7 @@ defmodule BankWeb.AccountControllerTest do
 
     third_payload = %{
       updates: %{
-        referral_code: genesis_referral_code,
+        referral_code: genesis_referral_code(),
         email: "mj@nba.com"
       }
     }

@@ -1,13 +1,14 @@
 defmodule Bank.Account.PartialAccount do
   alias Bank.Auth.ApiUser
   alias Bank.Account.BirthDateHelper
+  alias Bank.Account
 
   use Ecto.Schema
   import Ecto.Changeset
   import EctoCommons.EmailValidator
 
   @genders ~w(male female other)
-  @all_fields ~w(name email birth_date gender city state country referral_code)a
+  @fields_required_for_completion ~w(name email birth_date gender city state country referral_code)a
 
   schema "partial_accounts" do
     field :name, :binary
@@ -20,6 +21,7 @@ defmodule Bank.Account.PartialAccount do
     field :country, :string
     field :referral_code, :string
     field :self_referral_code, :string
+    field :completed, :boolean, default: false, virtual: true
 
     belongs_to :api_user, ApiUser
 
@@ -28,7 +30,7 @@ defmodule Bank.Account.PartialAccount do
 
   def changeset(account, attrs \\ %{}) do
     account
-    |> cast(attrs, @all_fields)
+    |> cast(attrs, @fields_required_for_completion)
     |> validate_inclusion(:gender, @genders)
     |> validate_length(:referral_code, is: 8)
     |> validate_email(:email)
@@ -42,12 +44,24 @@ defmodule Bank.Account.PartialAccount do
     |> foreign_key_constraint(:referral_code)
     |> unique_constraint(:email_hash)
     |> unique_constraint(:api_user_id)
+    |> complete_account_changeset
   end
 
-  def is_finished?(changeset) do
+  defp is_finished?(changeset) do
     changeset
-    |> validate_required(@all_fields)
+    |> validate_required(@fields_required_for_completion)
     |> Map.get(:valid?)
+  end
+
+  def complete_account_changeset(changeset) do
+    if is_finished?(changeset) do
+      changeset
+      |> change(self_referral_code: Account.gen_referral_code())
+      |> unique_constraint(:self_referal_code)
+      |> change(completed: true)
+    else
+      changeset
+    end
   end
 
   defp validate_referral_code(changeset) do
