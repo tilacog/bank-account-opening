@@ -12,33 +12,51 @@ defmodule Bank.Account.ReferralHelper do
   defp query(origin) do
     import Ecto.Query
 
-    fields = ~w(id self_referral_code referral_code)a
+    fields = ~w(name)a
 
     non_recursive_term =
       PartialAccount
       |> where([account], account.id == ^origin.id)
-      |> select(^fields)
 
+    # a = referred, b = referrer
     recursive_term =
       PartialAccount
       |> join(:inner, [b], a in "account_tree", on: a.self_referral_code == b.referral_code)
-      |> select(^fields)
 
     recursive =
       non_recursive_term
       |> union(^recursive_term)
 
+    # a = referred, b = referrer
     PartialAccount
     |> recursive_ctes(true)
     |> with_cte("account_tree", as: ^recursive)
-    |> select([a], map(a, ^fields))
+    |> join(:left, [a], b in PartialAccount, on: a.referral_code == b.self_referral_code)
+    |> select([a, b], %{referred: map(a, ^fields), referrer: map(b, ^fields)})
     |> Repo.all()
+    |> decrypt_name()
+  end
+
+  defp decrypt_name(relationships) do
+    decrypt_function = fn field -> Map.update(field, :name, nil, &Bank.Vault.decrypt!/1) end
+
+    # remove relationships without referrers
+    relationships =
+      relationships
+      |> Enum.reject(fn x -> is_nil(x.referrer) end)
+
+    for %{referred: child, referrer: parent} <- relationships do
+      %{
+        referred: decrypt_function.(child),
+        referrer: if(is_nil(parent), do: nil, else: decrypt_function.(parent))
+      }
+    end
   end
 
   defp build_graph(relationships) do
     graph = :digraph.new()
 
-    for %{self_referral_code: child, referral_code: parent} <- relationships do
+    for %{referred: child, referrer: parent} <- relationships do
       :digraph.add_vertex(graph, child)
       :digraph.add_vertex(graph, parent)
       :digraph.add_edge(graph, parent, child)
@@ -48,14 +66,13 @@ defmodule Bank.Account.ReferralHelper do
   end
 
   defp build_tree(graph, vertex) do
-    children = :digraph.out_neighbours(graph, vertex)
-
     %{
-      name: vertex,
-      children:
-        Enum.map(children, fn child ->
-          build_tree(graph, child)
-        end)
+      referrals:
+        :digraph.out_neighbours(graph, vertex)
+        |> Enum.map(fn child -> build_tree(graph, child) end)
     }
+    # removing the :id and :self_referral_code improve readability
+
+    |> Map.merge(vertex)
   end
 end

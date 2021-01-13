@@ -19,7 +19,24 @@ defmodule BankWeb.ReferralControllerTest do
     conn = get(conn, Routes.referral_path(conn, :index))
     body = json_response(conn, 200)
 
-    assert false, "finish this test"
+    expected_response = %{
+      "name" => "genesis",
+      "referrals" => [
+        %{
+          "name" => "child_b",
+          "referrals" => [
+            %{"name" => "grandchild_c", "referrals" => []},
+            %{"name" => "grandchild_b", "referrals" => []}
+          ]
+        },
+        %{
+          "name" => "child_a",
+          "referrals" => [%{"name" => "grandchild_a", "referrals" => []}]
+        }
+      ]
+    }
+
+    assert body == expected_response
   end
 
   # Fixtures
@@ -64,8 +81,6 @@ defmodule BankWeb.ReferralControllerTest do
     %{genesis_user: genesis_user, genesis_account: genesis_account}
   end
 
-  defp get_genesis_account(), do: Repo.get_by!(PartialAccount, name: "genesis")
-
   defp get_genesis_user() do
     {:ok, genesis_user} = Auth.get_user_by_cpf("00000000191")
     genesis_user
@@ -81,7 +96,7 @@ defmodule BankWeb.ReferralControllerTest do
     #     ├─ grandchild_b
     #     └─ grandchild_c
 
-    %{genesis_user: genesis_user, genesis_account: genesis_account} = create_genesis_account()
+    %{genesis_account: genesis_account} = create_genesis_account()
     child_a = create_account("child_a", genesis_account)
     _grandchild_a = create_account("grandchild_a", child_a)
     child_b = create_account("child_b", genesis_account)
