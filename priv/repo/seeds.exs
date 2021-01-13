@@ -8,7 +8,7 @@ alias Bank.Account.PartialAccount
 {:ok, genesis_user} = Auth.register_user(%{cpf: "00000000191", password: "123supersecret456"})
 
 Repo.insert!(%PartialAccount{
-  name: "genesis",
+  name: "genesis" |> Bank.Vault.encrypt!,
   email: nil,
   birth_date: nil,
   gender: nil,
