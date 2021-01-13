@@ -20,7 +20,7 @@ defmodule BankWeb.AccountView do
 
   def completion_status(partial_account) do
     if Map.get(partial_account, :completed) do
-      %{status: "completed", self_referral_code: partial_account.self_referral_code}
+      %{status: "complete", self_referral_code: partial_account.self_referral_code}
     else
       %{status: "incomplete"}
     end

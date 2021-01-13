@@ -89,7 +89,7 @@ defmodule BankWeb.AccountControllerTest do
     assert third_response ==
              first_response |> Map.merge(second_response) |> Map.merge(third_response)
 
-    assert %{"status" => "completed"} = third_response
+    assert %{"status" => "complete"} = third_response
     assert %{"self_referral_code" => self_referral_code} = third_response
     assert self_referral_code != nil
   end
@@ -124,7 +124,7 @@ defmodule BankWeb.AccountControllerTest do
       |> post(Routes.account_path(conn, :create), payload)
       |> json_response(201)
 
-    assert %{"status" => "completed"} = response
+    assert %{"status" => "complete"} = response
   end
 
   # Helper function to quickly setup and assert a test case for the :create action
