@@ -5,11 +5,22 @@ defmodule Bank.Account do
   alias Bank.Repo
   alias Bank.Account.PartialAccount
   alias Bank.Auth.ApiUser
+  import Bank.Account.ReferralHelper, only: [build_referral_tree: 1]
 
   def get_partial_account!(id), do: Repo.get!(PartialAccount, id)
 
   def get_partial_account(id) do
     case Repo.get(PartialAccount, id) do
+      nil ->
+        {:error, :not_found}
+
+      partial_account ->
+        {:ok, partial_account} |> decrypt
+    end
+  end
+
+  def get_partial_account_for_user(%ApiUser{} = api_user) do
+    case Repo.get_by(PartialAccount, api_user_id: api_user.id) do
       nil ->
         {:error, :not_found}
 

@@ -10,5 +10,6 @@ defmodule BankWeb.Router do
 
     resources "/auth", AuthController, only: [:create]
     resources "/accounts", AccountController, only: [:create, :update, :show]
+    resources "/referrals", ReferralController, only: [:index]
   end
 end
