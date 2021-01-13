@@ -54,13 +54,14 @@ defmodule Poc do
   def query(origin) do
     import Ecto.Query
 
-    fields = ~w(id self_referral_code referral_code)a
+    fields = ~w(id self_referral_code referral_code name)a
 
     non_recursive_term =
       PartialAccount
       |> where([account], account.id == ^origin.id)
       |> select(^fields)
 
+    # a = referred, b = referrer
     recursive_term =
       PartialAccount
       |> join(:inner, [b], a in "account_tree", on: a.self_referral_code == b.referral_code)
@@ -70,10 +71,12 @@ defmodule Poc do
       non_recursive_term
       |> union(^recursive_term)
 
+    # a = referred, b = referrer
     PartialAccount
     |> recursive_ctes(true)
     |> with_cte("account_tree", as: ^recursive)
-    |> select([a], map(a, ^fields))
+    |> join(:left, [a], b in PartialAccount, on: a.referral_code == b.self_referral_code)
+    |> select([a, b], %{referred: map(a, ^fields), referrer: map(b, ^fields)})
     |> Repo.all()
   end
 
@@ -93,8 +96,8 @@ defmodule Poc do
     children = :digraph.out_neighbours(graph, vertex)
 
     %{
-      name: vertex,
-      children:
+      used_referral_code: vertex,
+      referrals:
         Enum.map(children, fn child ->
           build_network(graph, child)
         end)
@@ -108,10 +111,14 @@ genesis = Poc.get_genesis()
 
 ### query
 relationships = Poc.query(genesis)
+IO.inspect(relationships, label: "relationships")
+IO.puts("===")
+
+# TODO: put usernames and ids on the query result
 
 ### digraph
-graph = Poc.build_graph(relationships)
-{:yes, root} = :digraph_utils.arborescence_root(graph)
-object = Poc.build_network(graph, root)
+# graph = Poc.build_graph(relationships)
+# {:yes, root} = :digraph_utils.arborescence_root(graph)
+# object = Poc.build_network(graph, root)
 
-IO.inspect(object, label: "object")
+# IO.inspect(object, label: "object")
