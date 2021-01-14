@@ -1,1 +1,12 @@
-{"birth_date":"2000-01-01","city":"userland","country":"none","email":"test@user.com","gender":"other","id":2,"name":"test user","referral_code":null,"state":"stateless","status":"incomplete"}
+{
+  "birth_date": "2000-01-01",
+  "city": "userland",
+  "country": "none",
+  "email": "test@user.com",
+  "gender": "other",
+  "id": 2,
+  "name": "test user",
+  "referral_code": null,
+  "state": "stateless",
+  "status": "incomplete"
+}

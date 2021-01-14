@@ -1,1 +1,18 @@
-{"name":"genesis","referrals":[{"name":"test user","referrals":[{"name":"ref-b","referrals":[]},{"name":"ref-a","referrals":[]}]}]}
+{
+  "name": "genesis",
+  "referrals": [
+    {
+      "name": "test user",
+      "referrals": [
+        {
+          "name": "ref-b",
+          "referrals": []
+        },
+        {
+          "name": "ref-a",
+          "referrals": []
+        }
+      ]
+    }
+  ]
+}

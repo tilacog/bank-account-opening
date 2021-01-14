@@ -1,1 +1,12 @@
-{"birth_date":null,"city":null,"country":null,"email":null,"gender":null,"id":2,"name":null,"referral_code":null,"state":null,"status":"incomplete"}
+{
+  "birth_date": null,
+  "city": null,
+  "country": null,
+  "email": null,
+  "gender": null,
+  "id": 2,
+  "name": null,
+  "referral_code": null,
+  "state": null,
+  "status": "incomplete"
+}

@@ -1,1 +1,13 @@
-{"birth_date":"2000-01-01","city":"userland","country":"none","email":"b@ref.com","gender":"other","id":4,"name":"ref-b","referral_code":"26672657","self_referral_code":"26459100","state":"stateless","status":"complete"}
+{
+  "birth_date": "2000-01-01",
+  "city": "userland",
+  "country": "none",
+  "email": "b@ref.com",
+  "gender": "other",
+  "id": 4,
+  "name": "ref-b",
+  "referral_code": "55607857",
+  "self_referral_code": "53225666",
+  "state": "stateless",
+  "status": "complete"
+}
