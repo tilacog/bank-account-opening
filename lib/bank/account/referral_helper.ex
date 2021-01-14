@@ -18,17 +18,17 @@ defmodule Bank.Account.ReferralHelper do
       PartialAccount
       |> where([account], account.id == ^origin.id)
 
-    # a = referred, b = referrer
+    # a = referred/child, b = referrer/parent
     recursive_term =
       PartialAccount
-      |> join(:inner, [b], a in "account_tree", on: a.self_referral_code == b.referral_code)
+      |> join(:inner, [a], b in "account_tree", on: b.self_referral_code == a.referral_code)
 
     recursive =
       non_recursive_term
       |> union(^recursive_term)
 
-    # a = referred, b = referrer
-    PartialAccount
+    # a = referred/child, b = referrer/parent
+    "account_tree"
     |> recursive_ctes(true)
     |> with_cte("account_tree", as: ^recursive)
     |> join(:left, [a], b in PartialAccount, on: a.referral_code == b.self_referral_code)
