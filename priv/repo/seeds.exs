@@ -10,6 +10,7 @@ alias Bank.Account.PartialAccount
 Repo.insert!(%PartialAccount{
   name: "genesis" |> Bank.Vault.encrypt!,
   email: nil,
+  email_hash: :crypto.hash(:sha256, "genesis@genesis.com"),
   birth_date: nil,
   gender: nil,
   city: nil,
