@@ -24,7 +24,7 @@ defmodule Poc do
     {:ok, account} =
       Account.create_partial_account(user, %{
         name: name,
-        email: "foo-#{:rand.uniform(9999)}@foo.foo",
+        email: name <> "@poc.com",
         birth_date: "2000-01-01",
         gender: "other",
         city: "atlantis",
@@ -40,7 +40,10 @@ defmodule Poc do
     account
   end
 
-  def get_genesis(), do: Repo.get_by!(PartialAccount, name: "genesis")
+  def get_genesis() do
+    email_hash = :crypto.hash(:sha256, "genesis@genesis.com")
+    Repo.get_by!(PartialAccount, email_hash: email_hash)
+  end
 
   def seed_database() do
     genesis = get_genesis()
@@ -59,25 +62,43 @@ defmodule Poc do
     non_recursive_term =
       PartialAccount
       |> where([account], account.id == ^origin.id)
-      |> select(^fields)
 
-    # a = referred, b = referrer
+    # a = referred/child, b = referrer/parent
     recursive_term =
       PartialAccount
-      |> join(:inner, [b], a in "account_tree", on: a.self_referral_code == b.referral_code)
-      |> select(^fields)
+      |> join(:inner, [a], b in "account_tree", on: b.self_referral_code == a.referral_code)
 
     recursive =
       non_recursive_term
       |> union(^recursive_term)
 
-    # a = referred, b = referrer
-    PartialAccount
+    # a = referred/child, b = referrer/parent
+    "account_tree"
     |> recursive_ctes(true)
     |> with_cte("account_tree", as: ^recursive)
     |> join(:left, [a], b in PartialAccount, on: a.referral_code == b.self_referral_code)
-    |> select([a, b], %{referred: map(a, ^fields), referrer: map(b, ^fields)})
+    |> select([a, b], %{
+      referred: map(a, ^fields),
+      referrer: map(b, ^fields)
+    })
     |> Repo.all()
+    |> decrypt_name()
+  end
+
+  def decrypt_name(relationships) do
+    decrypt_function = fn field -> Map.update(field, :name, nil, &Bank.Vault.decrypt!/1) end
+
+    # remove relationships without referrers
+    relationships =
+      relationships
+      |> Enum.reject(fn x -> is_nil(x.referrer) end)
+
+    for %{referred: child, referrer: parent} <- relationships do
+      %{
+        referred: decrypt_function.(child),
+        referrer: if(is_nil(parent), do: nil, else: decrypt_function.(parent))
+      }
+    end
   end
 
   def build_graph(relationships) do
@@ -111,8 +132,12 @@ genesis = Poc.get_genesis()
 
 ### query
 relationships = Poc.query(genesis)
-IO.inspect(relationships, label: "relationships")
-IO.puts("===")
+
+child_b = Repo.get_by!(PartialAccount, email_hash: :crypto.hash(:sha256, "child_b@poc.com"))
+sub_tree = Poc.query(child_b)
+
+IO.inspect(sub_tree, label: "sub_tree")
+# note that they are not the same
 
 # TODO: put usernames and ids on the query result
 
