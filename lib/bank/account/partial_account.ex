@@ -21,7 +21,6 @@ defmodule Bank.Account.PartialAccount do
     field :country, :string
     field :referral_code, :string
     field :self_referral_code, :string
-    field :completed, :boolean, default: false, virtual: true
 
     belongs_to :api_user, ApiUser
 
@@ -58,7 +57,6 @@ defmodule Bank.Account.PartialAccount do
       changeset
       |> change(self_referral_code: Account.gen_referral_code())
       |> unique_constraint(:self_referal_code)
-      |> change(completed: true)
     else
       changeset
     end

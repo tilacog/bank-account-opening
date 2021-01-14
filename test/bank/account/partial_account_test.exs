@@ -124,7 +124,6 @@ defmodule Bank.Account.PartialAccountTest do
 
   test "complete account will have :self_referral_code field and :completed status" do
     partial_account = PartialAccount.changeset(%PartialAccount{}, @valid_changes)
-    assert partial_account.changes.completed
     assert partial_account.changes.self_referral_code != nil
   end
 
@@ -135,7 +134,6 @@ defmodule Bank.Account.PartialAccountTest do
       incomplete_changes = Map.delete(@valid_changes, field)
       partial_account = PartialAccount.changeset(%PartialAccount{}, incomplete_changes)
 
-      refute Map.has_key?(partial_account, :completed)
       refute Map.has_key?(partial_account, :referral_code)
     end)
   end

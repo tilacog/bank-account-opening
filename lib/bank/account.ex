@@ -5,7 +5,6 @@ defmodule Bank.Account do
   alias Bank.Repo
   alias Bank.Account.PartialAccount
   alias Bank.Auth.ApiUser
-  import Bank.Account.ReferralHelper, only: [build_referral_tree: 1]
 
   def get_partial_account!(id), do: Repo.get!(PartialAccount, id)
 
@@ -35,8 +34,6 @@ defmodule Bank.Account do
     |> Ecto.Changeset.put_assoc(:api_user, api_user)
     |> Repo.insert()
     |> decrypt
-
-    # TODO: add operation to check if it is complete
   end
 
   def update_partial_account(%PartialAccount{} = partial_account, attrs) do
@@ -44,8 +41,6 @@ defmodule Bank.Account do
     |> PartialAccount.changeset(attrs)
     |> Repo.update()
     |> decrypt
-
-    # TODO: add operation to check if it is complete
   end
 
   def decrypt(opt) do

@@ -9,13 +9,13 @@ alias Bank.Account.PartialAccount
 
 Repo.insert!(%PartialAccount{
   name: "genesis" |> Bank.Vault.encrypt!,
-  email: nil,
+  email: "genesis@genesis.com" |> Bank.Vault.encrypt!,
   email_hash: :crypto.hash(:sha256, "genesis@genesis.com"),
-  birth_date: nil,
-  gender: nil,
-  city: nil,
-  state: nil,
-  country: nil,
+  birth_date: "2000-01-01",
+  gender: "other",
+  city: "other",
+  state: "other",
+  country: "other",
   referral_code: nil,
   self_referral_code: "12341234",
   api_user_id: genesis_user.id

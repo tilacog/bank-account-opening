@@ -13,8 +13,12 @@ defmodule BankWeb.ReferralController do
 
     with {:ok, %PartialAccount{} = partial_account} <-
            Account.get_partial_account_for_user(api_user) do
-      referrals = Bank.Account.ReferralHelper.build_referral_tree(partial_account)
-      render(conn, "referrals.json", referrals: referrals)
+      if partial_account.self_referral_code do
+        referrals = Bank.Account.ReferralHelper.build_referral_tree(partial_account)
+        render(conn, "referrals.json", referrals: referrals)
+      else
+        render(conn, "incomplete.json")
+      end
     end
   end
 end

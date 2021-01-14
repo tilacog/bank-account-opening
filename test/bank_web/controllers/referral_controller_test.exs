@@ -4,6 +4,7 @@ defmodule BankWeb.ReferralControllerTest do
   alias Bank.Account.PartialAccount
   alias Bank.Account
   alias Bank.Auth
+  alias Bank.Auth.ApiUser
 
   test "anonymous index requests are rejected", %{conn: conn} do
     conn = get(conn, Routes.referral_path(conn, :index))
@@ -11,13 +12,15 @@ defmodule BankWeb.ReferralControllerTest do
     assert %{"error" => "Unauthorized"} = body
   end
 
-  test "retrieves the referral tree", %{conn: conn} do
-    seed_database()
-    genesis_user = get_genesis_user()
-    conn = assign(conn, :api_user, genesis_user)
+  test "retrieves the referral tree scoped in current user", %{conn: conn} do
+    %{child_b: account} = seed_database()
+    api_user = Repo.get!(ApiUser, account.api_user_id)
 
-    conn = get(conn, Routes.referral_path(conn, :index))
-    body = json_response(conn, 200)
+    body =
+      conn
+      |> assign(:api_user, api_user)
+      |> get(Routes.referral_path(conn, :index))
+      |> json_response(200)
 
     expected_response = %{
       "name" => "genesis",
@@ -28,15 +31,23 @@ defmodule BankWeb.ReferralControllerTest do
             %{"name" => "grandchild_c", "referrals" => []},
             %{"name" => "grandchild_b", "referrals" => []}
           ]
-        },
-        %{
-          "name" => "child_a",
-          "referrals" => [%{"name" => "grandchild_a", "referrals" => []}]
         }
       ]
     }
 
     assert body == expected_response
+  end
+
+  test "incomplete partial accounts can't view the referral tree", %{conn: conn} do
+    # create an incomplete partial account
+    api_user = api_user_fixture()
+    Account.create_partial_account(api_user)
+
+    # actual test
+    conn
+    |> assign(:api_user, api_user)
+    |> get(Routes.referral_path(conn, :index), %{name: "michael jordan"})
+    |> json_response(200)
   end
 
   # Fixtures
@@ -52,7 +63,7 @@ defmodule BankWeb.ReferralControllerTest do
     {:ok, account} =
       Account.create_partial_account(user, %{
         name: name,
-        email: "foo-#{:rand.uniform(9999)}@foo.foo",
+        email: name <> "@foo.foo",
         birth_date: "2000-01-01",
         gender: "other",
         city: name,
@@ -81,11 +92,6 @@ defmodule BankWeb.ReferralControllerTest do
     %{genesis_user: genesis_user, genesis_account: genesis_account}
   end
 
-  defp get_genesis_user() do
-    {:ok, genesis_user} = Auth.get_user_by_cpf("00000000191")
-    genesis_user
-  end
-
   defp seed_database() do
     # Account Hierarchy
     # =================
@@ -98,9 +104,17 @@ defmodule BankWeb.ReferralControllerTest do
 
     %{genesis_account: genesis_account} = create_genesis_account()
     child_a = create_account("child_a", genesis_account)
-    _grandchild_a = create_account("grandchild_a", child_a)
+    grandchild_a = create_account("grandchild_a", child_a)
     child_b = create_account("child_b", genesis_account)
-    _grandchild_b = create_account("grandchild_b", child_b)
-    _grandchild_c = create_account("grandchild_c", child_b)
+    grandchild_b = create_account("grandchild_b", child_b)
+    grandchild_c = create_account("grandchild_c", child_b)
+
+    %{
+      child_a: child_a,
+      child_b: child_b,
+      grandchild_a: grandchild_a,
+      grandchild_b: grandchild_b,
+      grandchild_c: grandchild_c
+    }
   end
 end
