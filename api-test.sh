@@ -93,6 +93,6 @@ echo $COMMON						\
 http get :4000/api/referrals/ "${AUTH_HEADER}" | tee api-docs/step-6.json
 
 # ================================================================================
-# step 7: view referrals from another user
+# step 7: view referrals from another user's perspective
 # ================================================================================
 http get :4000/api/referrals/ "${AUTH_A}" | tee api-docs/step-7.json
