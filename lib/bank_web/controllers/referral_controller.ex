@@ -17,7 +17,9 @@ defmodule BankWeb.ReferralController do
         referrals = Bank.Account.ReferralHelper.build_referral_tree(partial_account)
         render(conn, "referrals.json", referrals: referrals)
       else
-        render(conn, "incomplete.json")
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render("incomplete.json")
       end
     end
   end

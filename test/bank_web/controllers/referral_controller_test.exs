@@ -44,10 +44,13 @@ defmodule BankWeb.ReferralControllerTest do
     Account.create_partial_account(api_user)
 
     # actual test
-    conn
-    |> assign(:api_user, api_user)
-    |> get(Routes.referral_path(conn, :index), %{name: "michael jordan"})
-    |> json_response(200)
+    body =
+      conn
+      |> assign(:api_user, api_user)
+      |> get(Routes.referral_path(conn, :index), %{name: "michael jordan"})
+      |> json_response(422)
+
+    assert %{"error" => "please fill in the missing fields to view your referral tree."} = body
   end
 
   # Fixtures
