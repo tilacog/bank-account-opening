@@ -29,7 +29,7 @@ An enviroment variable named `CLOAK_SECRET_KEY` must be populated with a secret 
 the encryption engine to work properly.
 
 The recommended and easiest way to run this software is using
-`[nix](https://nixos.org/guides/install-nix.html)` to provision all required packages in an isolated
+[nix](https://nixos.org/guides/install-nix.html) to provision all required packages in an isolated
 environment.
 
 A `shell.nix` file is present for automatically seting up the required environment and isolating it
