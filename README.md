@@ -124,7 +124,7 @@ If all of those conditions are met, the server will return a JSON
 response with a `201` status code containing the authorization token
 and a success message:
 
-```
+```javascript
 {
   "status": "success",
   "token": "NTE5NzE0ODY1OTA=.E7CTZyp01gvOJ5EnJUZcsJrJdv4qNHiNnMP7giyXAVM="
