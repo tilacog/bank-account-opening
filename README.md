@@ -81,16 +81,21 @@ The system will then  listen for connectons on port 4000.
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
+To run the automated test suite, run the command:
 
 ```
-Give an example
+$ mix test
 ```
 
+To run the end to end tests, run the script `api-test.sh`:
+
+```
+$ chmod +x api-tests.sh
+$ ./api-tests.sh
+```
+
+All the API responses from the end to end tests will be stored in the
+`./api-docs/` directory, for reference.
 
 ## Contributing
 
