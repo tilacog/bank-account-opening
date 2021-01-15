@@ -162,9 +162,9 @@ request to be successful, but the account will remain with its
 Further `PATCH` or `PUT` requests can be sent to the
 `/api/accounts/<account_id>` endpoint to update the account fields.
 
-If we were to provide all the fields in three sequential requests:
+If we were to provide all the fields in *three sequential requests*:
 
-#### Request 1: Provide `name`, `city`, `state` and `gender` fields
+#### Request 1/3: Provide `name`, `city`, `state` and `gender` fields
 
 The `PUT`/`PATCH` request should contain the informed fields inside an `updates` object.
 
@@ -197,7 +197,7 @@ And the response will contain the updated `PartialAccount` resource:
 
 Note that the `status` field is still `incomplete` because there are still missing fields.
 
-#### Request 2: Provide `birth_date`, `country`, `email` and `email` fields
+#### Request 2/3: Provide `birth_date`, `country`, `email` and `email` fields
 
 The second payload for our `PUT`/`PATCH` request will include some of
 the missing fields:
@@ -226,7 +226,7 @@ The response still tells us that the account status is `incomplete`:
   "status": "incomplete"
 }
 ```
-#### Request 2: Provide `referral_code` and obtain a `complete` account
+#### Request 3/3: Provide `referral_code` and obtain a `complete` account
 
 In the third and final `PUT`/`PATCH` request, we'll provide the last
 missing field, the `referral_code`.
