@@ -53,7 +53,7 @@ defmodule Bank.Account.PartialAccount do
   end
 
   def complete_account_changeset(changeset) do
-    if is_finished?(changeset) do
+    if is_finished?(changeset) and is_nil(changeset.data.self_referral_code) do
       changeset
       |> change(self_referral_code: Account.gen_referral_code())
       |> unique_constraint(:self_referal_code)
