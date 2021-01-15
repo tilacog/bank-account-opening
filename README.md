@@ -264,6 +264,68 @@ Note that besides being marked as complete, our account now have its
 own referral code in the `self_referral_code` field to be sent as an
 invitation for new users to create their own accounts.
 
+### Step 3: View the referral tree
+
+When the account creation process is finished, we can send an
+authenticated `GET` request to the `/api/referrals/` endpoint to
+obtain a JSON containing the referral tree scoped at the current user:
+
+```javascript
+{
+  "name": "genesis",
+  "referrals": [
+    {
+      "name": "test user",
+      "referrals": []
+    }
+  ]
+}
+```
+
+We can see our referrer, the *genesis* account, and our own account
+with no referrals. If two new accounts were to be created *(and
+completed)* using our own referral code, that response would contain
+their names and referrals, like the following example:
+
+```javascript
+{
+  "name": "genesis",
+  "referrals": [
+    {
+      "name": "test user",
+      "referrals": [
+        {
+          "name": "other user - a",
+          "referrals": []
+        },
+        {
+          "name": "other user - b",
+          "referrals": []
+        }
+      ]
+    }
+  ]
+}
+
+```
+
+Since that endpoint is scoped on the authenticated user, if we reach
+that view from another user *(let's say, the `other user - a`)*, the
+response would only contain its referrer *(our original `test user`)*
+and its referrals:
+
+```javascript
+{
+  "name": "test user",
+  "referrals": [
+    {
+      "name": "ref-a",
+      "referrals": []
+    }
+  ]
+}
+```
+
 ## Running the tests
 
 To run the automated test suite, run the command:
